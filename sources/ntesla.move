@@ -227,22 +227,6 @@ module nteslatoken {
     }
 
     /*
-    // Public functions
-    /// Burn `coin` with capability.
-    /// The capability `_cap` should be passed as a reference to `BurnCapability<NTesla>`.
-    public fun burn<NTesla>(
-        coin: Coin<NTesla>,
-        _cap: &BurnCapability<NTesla>,
-    ) acquires CoinInfo {
-        let Coin { value: amount } = coin;
-        assert!(amount > 0, error::invalid_argument(EZERO_COIN_AMOUNT));
-
-        let maybe_supply = &mut borrow_global_mut<CoinInfo<NTesla>>(coin_address<NTesla>()).supply;
-        if (option::is_some(maybe_supply)) {
-            let supply = option::borrow_mut(maybe_supply);
-            optional_aggregator::sub(supply, (amount as u128));
-        }
-    }
 
     /// Burn `coin` from the specified `account` with capability.
     /// The capability `burn_cap` should be passed as a reference to `BurnCapability<NTesla>`.
@@ -263,7 +247,30 @@ module nteslatoken {
         let coin_to_burn = extract(&mut coin_store.coin, amount);
         burn(coin_to_burn, burn_cap);
     }
+
+    // Public functions
+    /// Burn `coin` with capability.
+    /// The capability `_cap` should be passed as a reference to `BurnCapability<NTesla>`.
+    public fun burn<NTesla>(
+        coin: Coin<NTesla>,
+        _cap: &BurnCapability<NTesla>,
+    ) acquires CoinInfo {
+        let Coin { value: amount } = coin;
+        assert!(amount > 0, error::invalid_argument(EZERO_COIN_AMOUNT));
+
+        let maybe_supply = &mut borrow_global_mut<CoinInfo<NTesla>>(coin_address<NTesla>()).supply;
+        if (option::is_some(maybe_supply)) {
+            let supply = option::borrow_mut(maybe_supply);
+            optional_aggregator::sub(supply, (amount as u128));
+        }
+    }
     */
+
+    public entry fun burn<NTesla>(coins: coin::Coin<NTesla>) acquires CoinCapabilities {
+        let burn_capability = &borrow_global<CoinCapabilities<NTesla>>(@admin).burn_capability;
+        coin::burn<NTesla>(coins, burn_capability);
+    }
+
 
     /// Deposit the coin balance into the recipient's account and emit an event.
     public fun deposit<NTesla>(account_addr: address, coin: Coin<NTesla>) acquires CoinStore {
@@ -373,10 +380,32 @@ module nteslatoken {
         coin::deposit(user, coins)
     }
 
-    public entry fun burn<NTesla>(coins: coin::Coin<NTesla>) acquires CoinCapabilities {
-        let burn_capability = &borrow_global<CoinCapabilities<NTesla>>(@admin).burn_capability;
-        coin::burn<NTesla>(coins, burn_capability);
+    /*
+    /// Mint new `Coin` with capability.
+    /// The capability `_cap` should be passed as reference to `MintCapability<CoinType>`.
+    /// Returns minted `Coin`.
+    public entry fun mint<NTesla>(
+        account: &signer,
+        amount: u64,
+        _cap: &MintCapability<NTesla>,
+    ): Coin<NTesla> acquires CoinInfo {
+        if (amount == 0) {
+            return zero<NTesla>()
+        };
+        
+        let account_address = signer::address_of(account);
+        assert!(account_address == @admin, E_NO_ADMIN);
+        assert!(exists<CoinCapabilities<NTesla>>(account_address), E_NO_CAPABILITIES);
+
+        let maybe_supply = &mut borrow_global_mut<CoinInfo<NTesla>>(coin_address<NTesla>()).supply;
+        if (option::is_some(maybe_supply)) {
+            let supply = option::borrow_mut(maybe_supply);
+            optional_aggregator::add(supply, (amount as u128));
+        };
+
+        Coin<NTesla> { value: amount }
     }
+    */
 
     /// Transfers `amount` of coins `NTesla` from `from` to `to`.
     public entry fun transfer<NTesla>(
