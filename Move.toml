@@ -1,0 +1,9 @@
+[package]
+name = 'ntesla'
+version = '1.0.0'
+[dependencies.AptosFramework]
+git = 'https://github.com/davidiw/aptos-core.git'
+rev = 'conversions'
+subdir = 'aptos-move/framework/aptos-framework'
+[addresses]
+admin = '0xd90c97344e2d1c737304c8317d3cb331438db4f76e531d7b21668f13d5d42200'
